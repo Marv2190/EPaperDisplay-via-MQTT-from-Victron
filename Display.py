@@ -13,21 +13,24 @@ if os.path.exists(libdir):
 from PIL import Image, ImageDraw, ImageFont
 from waveshare_epd import epd2in13d
 
-cerboserial = "yourserialofcerbo"# Ist auch gleich VRM Portal ID
+cerboserial = "cerboserial"# Ist auch gleich VRM Portal ID
 acpower = 1
 dcpower = 1
 L1=1
 L2=2
 L3=3
-akkuladen=""
-se=""
-ve=""
-akku=""
-grid=""
-hausverbrauch =""
-akkuladen=""
-akkuspg=""
+pvgesamt=0
+Fehler=""
+akkuladen=1
+se=1
+ve=1
+akku=1
+grid=1
+hausverbrauch =1
+akkuladen=1
+akkuspg=1
 zaehler=0
+num=0
 neuaufbau=2000
 
 logging.basicConfig(level=logging.DEBUG)
@@ -60,83 +63,88 @@ def on_connect(client, userdata, flags, rc):
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
 
-    global acpower,dcpower,pvgesamt,se,ve,akku, grid, hausverbrauch, akkuladen, akkuspg, zaehler, L1, L2, L3
-    # print(msg.topic+" "+str(msg.payload))
-    if msg.topic == "N/" + cerboserial + "/pvinverter/20/Ac/Power":# AC PV Generation
+    try:
 
-        acpower = json.loads(msg.payload)
-        acpower = int(acpower['value'])
+        global acpower,dcpower,pvgesamt,se,ve,akku, grid, hausverbrauch, akkuladen, akkuspg, zaehler, L1, L2, L3, Fehler
+        # print(msg.topic+" "+str(msg.payload))
+        if msg.topic == "N/" + cerboserial + "/pvinverter/20/Ac/Power":# AC PV Generation
 
-    if msg.topic == "N/" + cerboserial + "/system/0/Dc/Pv/Power":# DC PV Generation
+            acpower = json.loads(msg.payload)
+            acpower = int(acpower['value'])
 
-        dcpower = json.loads(msg.payload)
-        dcpower=int(dcpower['value'])
+        if msg.topic == "N/" + cerboserial + "/system/0/Dc/Pv/Power":# DC PV Generation
 
-    if msg.topic == "N/" + cerboserial + "/pvinverter/20/Ac/Energy/Forward":# Solaredge YieldALL
+            dcpower = json.loads(msg.payload)
+            dcpower=int(dcpower['value'])
 
-        se = json.loads(msg.payload)
-        se = int(se['value'])
+        if msg.topic == "N/" + cerboserial + "/pvinverter/20/Ac/Energy/Forward":# Solaredge YieldALL
 
-    if msg.topic == "N/" + cerboserial + "/solarcharger/278/Yield/User":# Victron YieldALL
+            se = json.loads(msg.payload)
+            se = int(se['value'])
 
-        ve = json.loads(msg.payload)
-        ve=int(ve['value'])
-        print(ve)
+        if msg.topic == "N/" + cerboserial + "/solarcharger/278/Yield/User":# Victron YieldALL
 
-    if msg.topic == "N/" + cerboserial + "/vebus/276/Soc":# Akkuprozent
+            ve = json.loads(msg.payload)
+            ve=int(ve['value'])
+            print(ve)
 
-        akku = json.loads(msg.payload)
-        akku=float(akku['value'])
+        if msg.topic == "N/" + cerboserial + "/vebus/276/Soc":# Akkuprozent
 
-    if msg.topic == "N/" + cerboserial + "/system/0/Ac/ConsumptionOnOutput/L1/Power":# L1
+            akku = json.loads(msg.payload)
+            akku=float(akku['value'])
 
-        L1 = json.loads(msg.payload)
-        L1=int(L1['value'])
+        if msg.topic == "N/" + cerboserial + "/system/0/Ac/ConsumptionOnOutput/L1/Power":# L1
 
-    if msg.topic == "N/" + cerboserial + "/system/0/Ac/ConsumptionOnOutput/L2/Power":# L2
+            L1 = json.loads(msg.payload)
+            L1=int(L1['value'])
 
-        L2 = json.loads(msg.payload)
-        L2=int(L2['value'])
+        if msg.topic == "N/" + cerboserial + "/system/0/Ac/ConsumptionOnOutput/L2/Power":# L2
 
-    if msg.topic == "N/" + cerboserial + "/system/0/Ac/ConsumptionOnOutput/L3/Power":# L3
+            L2 = json.loads(msg.payload)
+            L2=int(L2['value'])
 
-        L3 = json.loads(msg.payload)
-        L3=int(L3['value'])
+        if msg.topic == "N/" + cerboserial + "/system/0/Ac/ConsumptionOnOutput/L3/Power":# L3
 
-    if msg.topic == "N/" + cerboserial + "/vebus/276/Ac/ActiveIn/P":#grid
+            L3 = json.loads(msg.payload)
+            L3=int(L3['value'])
 
-        grid = json.loads(msg.payload)
-        grid=int(grid['value'])
-        grid = grid /1000
+        if msg.topic == "N/" + cerboserial + "/vebus/276/Ac/ActiveIn/P":#grid
 
-    if msg.topic == "N/" + cerboserial + "/system/0/Dc/Battery/Power":# Akkuladen
+            grid = json.loads(msg.payload)
+            grid = int(grid['value'])
+            grid = grid /1000
 
-        akkuladen = json.loads(msg.payload)
-        akkuladen=int(akkuladen['value'])
-        akkuladen = akkuladen /1000
+        if msg.topic == "N/" + cerboserial + "/system/0/Dc/Battery/Power":# Akkuladen
+
+            akkuladen = json.loads(msg.payload)
+            akkuladen=int(akkuladen['value'])
+            akkuladen = akkuladen /1000
 
 
-    if msg.topic == "N/" + cerboserial + "/vebus/276/Dc/0/Voltage":# Akkuspannung
+        if msg.topic == "N/" + cerboserial + "/vebus/276/Dc/0/Voltage":# Akkuspannung
 
-        akkuspg = json.loads(msg.payload)
-        akkuspg=float(akkuspg['value'])
+            akkuspg = json.loads(msg.payload)
+            akkuspg=float(akkuspg['value'])
 
-    # print(acpower)
-    # print(dcpower)
-    zaehler=zaehler+1
-    pvgesamt= acpower + dcpower
-    hausverbrauch = (L1+L2+L3)/1000
-    print(str(pvgesamt)+ "W PVgesamt")
-    print(str(akkuladen)+ "W Akkuleistung")
-    print(str(se)+ "kWh Solaredge Ertrag")
-    print(str(ve)+ "kWh Victron Ertrag")
-    print(str(akku)+ "% Akku")
-    print(str(akkuspg)+"V Akkuspg")
-    print(str(grid)+ "W Grid")
-    print(str(hausverbrauch)+ "W hausverbrauch")
-    print(str(akkuspg)+ "V Akkuspannung")
-    print(str(zaehler)+"x Funktion aufgerufen")
-    print("-----------------------------------")
+        # print(acpower)
+        # print(dcpower)
+        zaehler=zaehler+1
+        pvgesamt= acpower + dcpower
+        hausverbrauch = (L1+L2+L3)/1000
+        print(str(pvgesamt)+ "W PVgesamt")
+        print(str(akkuladen)+ "W Akkuleistung")
+        print(str(se)+ "kWh Solaredge Ertrag")
+        print(str(ve)+ "kWh Victron Ertrag")
+        print(str(akku)+ "% Akku")
+        print(str(akkuspg)+"V Akkuspg")
+        print(str(grid)+ "W Grid")
+        print(str(hausverbrauch)+ "W hausverbrauch")
+        print(str(akkuspg)+ "V Akkuspannung")
+        print(str(zaehler)+"x Funktion aufgerufen")
+        print("-----------------------------------")
+    except:
+        print("Irgendwas ist hier ziemlich schief gelaufen")
+
 
 client = mqtt.Client("E-PaperDisplay")
 client.on_connect = on_connect
