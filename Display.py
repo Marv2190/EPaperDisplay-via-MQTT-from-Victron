@@ -30,7 +30,6 @@ hausverbrauch =1
 akkuladen=1
 akkuspg=1
 zaehler=0
-num=0
 neuaufbau=2000
 
 logging.basicConfig(level=logging.DEBUG)
