@@ -11,4 +11,4 @@ Grid Power (in or out (-))<br>
 Power to the Accu<br>
 Accu Voltage<br>
 Compsuption from the House (Self Comsuption)<br>
-![alt text](example.jpg?raw=true)
+![example](example.jpg)
