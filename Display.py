@@ -135,7 +135,6 @@ def on_message(client, userdata, msg):
         print(str(se)+ "kWh Solaredge Ertrag")
         print(str(ve)+ "kWh Victron Ertrag")
         print(str(akku)+ "% Akku")
-        print(str(akkuspg)+"V Akkuspg")
         print(str(grid)+ "W Grid")
         print(str(hausverbrauch)+ "W hausverbrauch")
         print(str(akkuspg)+ "V Akkuspannung")
