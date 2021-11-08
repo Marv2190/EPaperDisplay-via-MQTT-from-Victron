@@ -10,5 +10,5 @@ Accu in Procent<br>
 Grid Power (in or out (-))<br>
 Power to the Accu<br>
 Accu Voltage<br>
-Compsuption from the House (Self Comsuption)<br>
+Consumption from the House (Self Comsuption)<br>
 ![example](example.JPG)
