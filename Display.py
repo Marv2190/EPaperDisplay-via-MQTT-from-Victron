@@ -13,7 +13,7 @@ if os.path.exists(libdir):
 from PIL import Image, ImageDraw, ImageFont
 from waveshare_epd import epd2in13d
 
-cerboserial = "cerboserial"# Ist auch gleich VRM Portal ID
+cerboserial = "123456789"# Ist auch gleich VRM Portal ID
 acpower = 1
 dcpower = 1
 L1=1
@@ -132,12 +132,12 @@ def on_message(client, userdata, msg):
         pvgesamt= acpower + dcpower
         hausverbrauch = (L1+L2+L3)/1000
         print(str(pvgesamt)+ "W PVgesamt")
-        print(str(akkuladen)+ "W Akkuleistung")
+        print(str(akkuladen)+ "kW Akkuleistung")
         print(str(se)+ "kWh Solaredge Ertrag")
         print(str(ve)+ "kWh Victron Ertrag")
         print(str(akku)+ "% Akku")
-        print(str(grid)+ "W Grid")
-        print(str(hausverbrauch)+ "W hausverbrauch")
+        print(str(grid)+ "kW Grid")
+        print(str(hausverbrauch)+ "kW hausverbrauch")
         print(str(akkuspg)+ "V Akkuspannung")
         print(str(zaehler)+"x Funktion aufgerufen")
         print("-----------------------------------")
@@ -149,7 +149,7 @@ client = mqtt.Client("E-PaperDisplay")
 client.on_connect = on_connect
 client.on_message = on_message
 
-client.connect("192.168.1.167", 1883, 60)
+client.connect("192.168.1.xxx", 1883, 60)
 
 # Blocking call that processes network traffic, dispatches callbacks and
 # handles reconnecting.
